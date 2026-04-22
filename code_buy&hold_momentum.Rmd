@@ -1,0 +1,260 @@
+---
+title: "code_buy&hold_momentum"
+output: html_document
+---
+
+library(readr)
+library(dplyr)
+
+
+
+########## krok 1 ##################
+# 1) wczytaj returns, musi być pobrany plik "returns.csv" z repozytorium
+```{r}
+returns <- read_csv("returns.csv", show_col_types = FALSE)
+
+```
+
+
+# 2) Date jako data + sort
+```{r}
+returns <- returns %>%
+  mutate(Date = as.Date(Date)) %>%
+  arrange(Date)
+```
+
+
+# 3) policz miesięczny zwrot "rynku" jako equal-weighted średnia zwrotów spółek
+
+```{r}
+ret_mat <- returns %>% select(-Date)
+
+
+r_mkt <- rowMeans(ret_mat, na.rm = TRUE)
+
+
+df1 <- tibble(
+  Date = returns$Date,
+  r_mkt = r_mkt
+)
+
+```
+
+
+# 4) szybkie kontrole
+```{r}
+df1 %>% summarise(
+  start = min(Date),
+  end = max(Date),
+  n_months = n(),
+  any_na = any(is.na(r_mkt))
+)
+```
+
+
+########### krok 2 ###########
+```{r}
+library(dplyr)
+
+
+df2 <- df1 %>%
+  arrange(Date) %>%
+  mutate(
+    # 1) syntetyczna cena rynku (start = 1)
+    P = cumprod(1 + r_mkt),
+    
+    
+    # 2) momentum 12–1
+    # M_t = P_{t-1} / P_{t-12} - 1
+    M = lag(P, 1) / lag(P, 12) - 1,
+    
+    
+    # 3) decyzja inwestycyjna
+    pos = if_else(M > 0, 1, 0)
+  )
+
+
+df2 %>%
+  select(Date, r_mkt, P, M, pos) %>%
+  head(15)
+
+```
+
+
+##### krok 3 ######
+```{r}
+df3 <- df2 %>%
+  mutate(
+    r_bh = r_mkt,
+    r_mom = pos * r_mkt
+  ) %>%
+  filter(!is.na(M)) # wspólny okres porównania
+
+df3 %>%
+  summarise(
+    start = min(Date),
+    end = max(Date),
+    n_months = n(),
+    share_in_market = mean(pos)
+  )
+```
+
+
+
+###### krok 4 ######
+```{r}
+library(dplyr)
+
+
+df4 <- df3 %>%
+  mutate(
+    equity_bh = cumprod(1 + r_bh),
+    equity_mom = cumprod(1 + r_mom)
+  )
+
+df4 %>%
+  select(Date, equity_bh, equity_mom) %>%
+  head(10)
+```
+
+
+
+###### krok 5 #####
+# =========================
+# Funkcje pomocnicze
+# =========================
+```{r}
+cagr <- function(r) {
+  n <- length(r)
+  (prod(1 + r))^(12 / n) - 1
+}
+
+
+ann_vol <- function(r) {
+  sd(r) * sqrt(12)
+}
+
+
+sharpe <- function(r) {
+  mean(r) / sd(r) * sqrt(12)
+}
+
+
+max_dd <- function(r) {
+  equity <- cumprod(1 + r)
+  peak <- cummax(equity)
+  dd <- equity / peak - 1
+  min(dd)
+}
+
+```
+
+
+
+# =========================
+# Liczenie metryk
+# =========================
+```{r}
+metrics <- tibble(
+  strategy = c("Buy & Hold", "Momentum 12–1"),
+  annual_return = c(
+    cagr(df3$r_bh),
+    cagr(df3$r_mom)
+  ),
+  annual_volatility = c(
+    ann_vol(df3$r_bh),
+    ann_vol(df3$r_mom)
+  ),
+  sharpe_ratio = c(
+    sharpe(df3$r_bh),
+    sharpe(df3$r_mom)
+  ),
+  max_drawdown = c(
+    max_dd(df3$r_bh),
+    max_dd(df3$r_mom)
+  )
+)
+
+
+metrics
+```
+
+
+######## krok 6 #####
+```{r}
+t_test <- t.test(
+  df3$r_mom,
+  df3$r_bh,
+  paired = TRUE
+)
+
+
+t_test
+```
+
+
+
+###### wykresy ######
+```{r}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+
+df_plot <- df4 %>%
+  select(Date, equity_bh, equity_mom) %>%
+  pivot_longer(
+    cols = c(equity_bh, equity_mom),
+    names_to = "strategy",
+    values_to = "equity"
+  ) %>%
+  mutate(
+    strategy = recode(
+      strategy,
+      equity_bh = "Buy & Hold",
+      equity_mom = "Momentum 12–1"
+    )
+  )
+
+
+```
+
+
+```{r}
+ggplot(df_plot, aes(x = Date, y = equity, linetype = strategy)) +
+  geom_line(linewidth = 1) +
+  labs(
+    title = "Krzywe kapitału: Buy & Hold vs Momentum 12–1",
+    x = NULL,
+    y = "Kapitał (start = 1)",
+    linetype = "Strategia"
+  ) +
+  theme_minimal()
+
+y_min <- min(df_plot$equity, na.rm = TRUE)
+y_max <- max(df_plot$equity, na.rm = TRUE)
+y_range <- y_max - y_min
+```
+
+
+```{r}
+
+
+ggplot(df_plot, aes(x = Date, y = equity, color = strategy, linetype = strategy)) +
+  geom_line(linewidth = 1.2) +
+  scale_color_manual(values = c(
+    "Buy & Hold" = "blue",
+    "Momentum 12–1" = "forestgreen"
+  )) +
+  labs(
+    title = "Equity curves: Buy & Hold vs Momentum 12–1",
+    x = NULL, 
+    y = "Kapitał"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.title = element_blank(),
+    legend.position = "top"
+  )
+
+```
