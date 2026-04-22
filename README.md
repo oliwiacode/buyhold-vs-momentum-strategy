@@ -7,8 +7,8 @@ W raporcie przeanalizowano wyniki dwóch strategii inwestycyjnych na rynku akcji
 # 2. Opis danych
 Analizę przeprowadzono na podstawie danych historycznych dla 500 spółek wchodzących w skład indeksu S&P 500, pobranych z serwisu Kaggle.
 
-**Szereg czasowy**: Dane miesięczne (stopy zwrotu).
-**Konstrukcja indeksu**: Zastosowano podejście Equal-Weighted (równowagowe). Oznacza to, że każda spółka ma identyczny wpływ na wynik portfela, co pozwala na lepszą ocenę ogólnej kondycji rynku niż indeksy ważone kapitalizacją, gdzie dominują najwięksi gracze (np. Big Tech).
+- **Szereg czasowy**: Dane miesięczne (stopy zwrotu).
+- **Konstrukcja indeksu**: Zastosowano podejście Equal-Weighted (równowagowe). Oznacza to, że każda spółka ma identyczny wpływ na wynik portfela, co pozwala na lepszą ocenę ogólnej kondycji rynku niż indeksy ważone kapitalizacją, gdzie dominują najwięksi gracze (np. Big Tech).
 W badaniu wykorzystano środowisko R oraz biblioteki dplyr, readr, ggplot2, tidyr do przetwarzania danych. 
 
 ## 2.1. Konstrukcja Benchmarku (S&P 500 Proxy)
