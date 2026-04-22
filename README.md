@@ -68,6 +68,16 @@ t = -1.73
 df = 47
 p-value = 0.091
 
+```{r}
+t_test <- t.test(
+  df3$r_mom,
+  df3$r_bh,
+  paired = TRUE
+)
+
+
+t_test
+```
 
 Ujemna wartość statystyki t oraz ujemna średnia różnica wskazują, że strategia Momentum generowała niższe średnie miesięczne stopy zwrotu niż strategia Buy & Hold w analizowanym okresie.
 
