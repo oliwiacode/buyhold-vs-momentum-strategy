@@ -30,7 +30,7 @@ Zastosowanie miesięcznego opóźnienia (skip-1-month) ogranicza wpływ krótkot
 # 4. Wyniki ilościowe
 W niniejszej sekcji dokonano szczegółowej analizy wyników ilościowych strategii Buy & Hold oraz Momentum 12–1, koncentrując się na czterech kluczowych miarach efektywności inwestycyjnej: rocznej stopie zwrotu (annual_return), zmienności rocznej (annual_volatility), wskaźniku Sharpe’a (sharpe_ratio) oraz maksymalnym obsunięciu kapitału (max_drawdown).
 
-
+![Table1](table_stategies.png)
 
 ## 4.1. Roczna stopa zwrotu
 Strategia Buy & Hold osiągnęła średnią roczną stopę zwrotu na poziomie **16.4%**, co odzwierciedla silny trend wzrostowy na rynku akcji USA w badanym okresie. Wysoka roczna stopa zwrotu jest konsekwencją ciągłej ekspozycji na rynek oraz braku decyzji timingowych, które mogłyby ograniczyć udział w hossie.
@@ -72,21 +72,7 @@ Sformułowano następujące hipotezy:
 ## 5.3. Wyniki testu
 Wyniki testu t-Studenta przedstawiają się następująco:
 
-t = -1.73
-df = 47
-p-value = 0.091
-
-Paired t-test
-
-data:  df3$r_mom and df3$r_bh
-t = -1.7257, df = 47, p-value = 0.09097
-alternative hypothesis: true mean difference is not equal to 0
-95 percent confidence interval:
- -0.01429952  0.00109441
-sample estimates:
-mean difference 
-   -0.006602554 
-
+![Table1](tstudent.png)
 
 Ujemna wartość statystyki t oraz ujemna średnia różnica wskazują, że strategia Momentum generowała niższe średnie miesięczne stopy zwrotu niż strategia Buy & Hold w analizowanym okresie.
 
@@ -99,6 +85,8 @@ Wynik testu wskazuje, że strategia Momentum 12–1 w analizowanym horyzoncie ni
 
 # 6. Wizualizacja krzywych kapitału (Equity Curves)
 Krzywe kapitału przedstawiają ewolucję wartości jednostki kapitału zainwestowanej w obie strategie w analizowanym okresie. Oś pozioma reprezentuje czas, natomiast oś pionowa skumulowaną wartość portfela.
+
+![Table1](equity_curves.png)
 
 W analizowanym okresie strategia Momentum 12–1 pozostawała zainwestowana przez większość czasu, co sprawia, że jej krzywa kapitału początkowo pokrywa się z krzywą strategii Buy & Hold. Krótkie epizody braku ekspozycji rynkowej miały ograniczony wpływ na kształt krzywej kapitału i nie prowadziły do wyraźnych okresów stabilizacji wartości portfela.
 
